@@ -60,6 +60,8 @@ if args.stop:
                 )
             if answer in ("y", "Y"):
                 time[-1][2] = " ".join(args.description)
+        elif args.description:
+            time[-1][2] = " ".join(args.description)
 
 if args.analyze:
     duration_total = datetime.timedelta(seconds=0)
