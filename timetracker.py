@@ -34,10 +34,13 @@ args = parser.parse_args()
 
 time = []
 time_file_path = Path(os.path.dirname(os.path.abspath(__file__))) / time_file_name
-with time_file_path.open() as time_file:
-    time_csv = csv.reader(time_file, delimiter="\t")
-    for row in time_csv:
-        time.append(row)
+try:
+    with time_file_path.open() as time_file:
+        time_csv = csv.reader(time_file, delimiter="\t")
+        for row in time_csv:
+            time.append(row)
+except FileNotFoundError:
+    pass
 
 
 def format_duration(duration):
@@ -47,7 +50,7 @@ def format_duration(duration):
 
 
 if args.stop:
-    if time[-1][1]:
+    if (not time) or time[-1][1]:
         print("There is currently no work session running!")
         exit()
     else:
@@ -82,11 +85,7 @@ if args.analyze:
     print(f"\nTotal time worked: {format_duration(duration_total)}")
 
 if args.start:
-    if not time[-1][1]:
-        print(
-            "There is a work session still going on. Finish it before starting a new one!"
-        )
-    else:
+    if (not time) or time[-1][1]:
         if args.description:
             time.append(
                 [
@@ -97,6 +96,10 @@ if args.start:
             )
         else:
             time.append([datetime.datetime.now().strftime(date_format), "", ""])
+    else:
+        print(
+            "There is a work session still going on. Finish it before starting a new one!"
+        )
 
 if args.start or args.stop:
     with time_file_path.open("w") as time_file:
